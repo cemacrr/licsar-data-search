@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<!-- html start: __________________________________________________________ -->
+<html>
+  <!-- head start:_________________________________________________________ -->
+  <head>
+    <meta http-equiv="content-type"
+          content="text/html; charset=utf-8">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1">
+    <link rel="icon"
+          href="img/icon/icon.png"
+          sizes="192x192">
+    <!-- title: ___________________________________________________________ -->
+    <title>COMET LiCSAR Data Search</title>
+    <!-- styles: __________________________________________________________ -->
+    <!-- site style: -->
+    <link rel="stylesheet"
+          type="text/css"
+          href="css/site.css"
+          media="all">
+    <!-- scripts: _________________________________________________________ -->
+    <!-- site js: -->
+    <script src="js/site.js"
+            charset="utf-8"
+            defer>
+    </script>
+  <!-- head end:___________________________________________________________ -->
+  </head>
+  <!-- body start: ________________________________________________________ -->
+  <body>
+    <!-- container start: _________________________________________________ -->
+    <div id="container"
+         class="container">
+      <!-- header: ________________________________________________________ -->
+      <div id="header"
+           class="header">
+        <div id="header_logo"
+             class="header_logo">
+          <a href="https://comet.nerc.ac.uk">
+            <img id="header_logo_img_small"
+                 alt=""
+                 title="COMET"
+                 class="header_logo_img"
+                 src="img/header/comet_logo_small.png">
+            <img id="header_logo_img"
+                 alt=""
+                 title="COMET"
+                 class="header_logo_img"
+                 src="img/header/comet_logo.png">
+          </a>
+        </div>
+      <div id="header_break"
+           class="header_break">
+      </div>
+      </div>
+      <!-- content: _______________________________________________________ -->
+      <div id="content"
+           class="content">
+        <!-- page title: __________________________________________________ -->
+        <div id="heading_page"
+             class="heading">
+          <label>LiCSAR data search</label>
+        </div>
+        <!-- frame id input: ______________________________________________ -->
+        <div id="frame_id"
+             class="input_element">
+          <div id="label_frame_id"
+               class="label">
+            <label>Frame ID</label>
+          </div>
+          <div>
+            <input id="input_frame_id"
+                   name="frame_id"
+                   list="datalist_frame_id"
+                   maxlength="17"
+                   disabled>
+            <datalist id="datalist_frame_id">
+            </datalist>
+          </div>
+        </div>
+        <!-- date inputs: _________________________________________________ -->
+        <div id="dates_selection"
+             class="flex_row">
+          <!-- start date input: __________________________________________ -->
+          <div id="start_date"
+               class="input_element">
+            <div id="label_start_date"
+                 class="label">
+              <label>Start Date</label>
+            </div>
+            <div>
+              <input id="input_start_date"
+                     class="input_date"
+                     type="date"
+                     value="2014-04-03"
+                     min="2014-04-03"
+                     disabled>
+            </div>
+          </div>
+          <!-- end date input: ____________________________________________ -->
+          <div id="end_date"
+               class="input_element">
+            <div id="label_end_date"
+                 class="label">
+              <label>End Date</label>
+            </div>
+            <div>
+              <input id="input_end_date"
+                     class="input_date"
+                     type="date"
+                     min="2014-04-03"
+                     disabled>
+            </div>
+          </div>
+        </div>
+        <!-- data selection: ______________________________________________ -->
+        <div id="data_selection"
+             class="input_element">
+          <div id="label_data_select"
+               class="label">
+            <label>Data to include</label> (if available)
+          </div>
+          <!-- metadata select: ___________________________________________ -->
+          <div id="select_metadata"
+               class="select_data">
+            <label>Metadata</label>
+            <input id="input_include_metadata"
+                   type="checkbox"
+                   checked>
+          </div>
+          <!-- file inputs: _______________________________________________ -->
+          <div id="files_selection"
+               class="flex_row">
+            <!-- per epoch files select: __________________________________ -->
+            <div id="select_epochs"
+                 class="select_files">
+              <div id="label_epoch_select"
+                   class="label">
+                Per epoch files
+              </div>
+              <div id="select_epoch_geo_mli_png"
+                   class="select_data">
+                <label>geo.mli.png</label>
+                <input id="input_include_epoch_geo_mli_png"
+                       type="checkbox"
+                       name="input_include_epoch_files[]"
+                       value="geo.mli.png">
+              </div>
+              <div id="select_epoch_geo_mli_tif"
+                   class="select_data">
+                <label>geo.mli.tif</label>
+                <input id="input_include_epoch_geo_mli_tif"
+                       type="checkbox"
+                       name="input_include_epoch_files[]"
+                       value="geo.mli.tif"
+                       checked>
+              </div>
+              <div id="select_epoch_sltd_geo_tif"
+                   class="select_data">
+                <label>sltd.geo.tif</label>
+                <input id="input_include_epoch_sltd_geo_tif"
+                       type="checkbox"
+                       name="input_include_epoch_files[]"
+                       value="sltd.geo.tif"
+                       checked>
+              </div>
+              <div id="select_epoch_ztd_geo_tif"
+                   class="select_data">
+                <label>ztd.geo.tif</label>
+                <input id="input_include_epoch_ztd_geo_tif"
+                       type="checkbox"
+                       name="input_include_epoch_files[]"
+                       value="ztd.geo.tif"
+                       checked>
+              </div>
+              <div id="select_epoch_ztd_jpg"
+                   class="select_data">
+                <label>ztd.jpg</label>
+                <input id="input_include_epoch_ztd_jpg"
+                       type="checkbox"
+                       name="input_include_epoch_files[]"
+                       value="ztd.jpg">
+              </div>
+            </div>
+            <!-- per interferogram files select: __________________________ -->
+            <div id="select_ifgs"
+                 class="select_files">
+              <div id="label_ifg_select"
+                   class="label">
+                Per interferogram files
+              </div>
+              <div id="select_ifg_geo_cc_png"
+                   class="select_data">
+                <label>geo.cc.png</label>
+                <input id="input_include_ifg_geo_cc_png"
+                       type="checkbox"
+                       name="input_include_ifg_files[]"
+                       value="geo.cc.png">
+              </div>
+              <div id="select_ifg_geo_cc_tif"
+                   class="select_data">
+                <label>geo.cc.tif</label>
+                <input id="input_include_ifg_geo_cc_tif"
+                       type="checkbox"
+                       name="input_include_ifg_files[]"
+                       value="geo.cc.tif"
+                       checked>
+              </div>
+              <div id="select_ifg_geo_diff_png"
+                   class="select_data">
+                <label>geo.diff.png</label>
+                <input id="input_include_ifg_geo_diff_png"
+                       type="checkbox"
+                       name="input_include_ifg_files[]"
+                       value="geo.diff.png">
+              </div>
+              <div id="select_ifg_geo_diff_pha_tif"
+                   class="select_data">
+                <label>geo.diff_pha.tif</label>
+                <input id="input_include_ifg_geo_diff_pha_tif"
+                       type="checkbox"
+                       name="input_include_ifg_files[]"
+                       value="geo.diff_pha.tif"
+                       checked>
+              </div>
+              <div id="select_ifg_geo_diff_unfiltered_png"
+                   class="select_data">
+                <label>geo_diff_unfiltered.png</label>
+                <input id="input_include_ifg_geo_diff_unfiltered_png"
+                       type="checkbox"
+                       name="input_include_ifg_files[]"
+                       value="geo_diff_unfiltered.png">
+              </div>
+              <div id="select_ifg_geo_diff_unfiltered_pha_tif"
+                   class="select_data">
+                <label>geo_diff_unfiltered_pha.tif</label>
+                <input id="input_include_ifg_geo_diff_unfiltered_pha_tif"
+                       type="checkbox"
+                       name="input_include_ifg_files[]"
+                       value="geo_diff_unfiltered_pha.tif">
+              </div>
+              <div id="select_ifg_geo_unw_png"
+                   class="select_data">
+                <label>geo.unw.png</label>
+                <input id="input_include_ifg_geo_unw_png"
+                       type="checkbox"
+                       name="input_include_ifg_files[]"
+                       value="geo.unw.png">
+              </div>
+              <div id="select_ifg_geo_unw_tif"
+                   class="select_data">
+                <label>geo.unw.tif</label>
+                <input id="input_include_ifg_geo_unw_tif"
+                       type="checkbox"
+                       name="input_include_ifg_files[]"
+                       value="geo.unw.tif"
+                       checked>
+              </div>
+            </div>
+          <!-- end file inputs: ___________________________________________ -->
+          </div>
+        <!-- end data selection: __________________________________________ -->
+        </div>
+        <!-- search button: _______________________________________________ -->
+        <div id="search">
+          <button id="button_search_files"
+                  onclick="search_files();"
+                  disabled>
+            search
+          </button>
+        </div>
+        <!-- search results: ______________________________________________ -->
+        <div id="results">
+          <div id="heading_search_results"
+               class="heading">
+            <label>Search results</label> <span id="span_results_count"></span>
+          </div>
+          <div id="download_scripts">
+            <div id="label_download_scripts"
+                 class="label">
+              <label>Download scripts</label>
+            </div>
+            <div id="download_scripts_buttons"
+                 class="flex_row">
+              <button id="button_script_python"
+                      onclick="get_script_python();">
+                python
+              </button>
+              <button id="button_script_wget"
+                      onclick="get_script_wget();">
+                wget
+              </button>
+              <button id="button_script_curl"
+                      onclick="get_script_curl();">
+                cURL
+              </button>
+            </div>
+          </div>
+          <div id="div_search_results">
+            <div id="metadata_results">
+              <div id="label_metadata_results"
+                   class="label">
+                <label>Metadata</label> <span id="span_metadata_count"></span>
+              </div>
+              <div id="metadata_search_results">
+              </div>
+            </div>
+            <div id="epoch_results">
+              <div id="label_epoch_results"
+                   class="label">
+                <label>Per epoch files</label> <span id="span_epoch_count"></span>
+              </div>
+              <div id="epoch_search_results">
+              </div>
+            </div>
+            <div id="ifg_results">
+              <div id="label_ifg_results"
+                   class="label">
+                <label>Interferograms</label> <span id="span_ifg_count"></span>
+              </div>
+              <div id="ifg_search_results">
+              </div>
+            </div>
+          </div>
+        <!-- end search results: __________________________________________ -->
+        </div>
+      <!-- end content: ___________________________________________________ -->
+      </div>
+      <!-- footer: ________________________________________________________ -->
+      <div id="footer"
+           class="footer">
+      </div>
+    <!-- container end: ___________________________________________________ -->
+    </div>
+  <!-- body end: __________________________________________________________ -->
+  </body>
+<!-- html end: ____________________________________________________________ -->
+</html>

@@ -1,0 +1,221 @@
+/** body: **/
+
+body {
+  background-color: #484848;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif, "Arial", "Helvetica";
+  font-size: 1em;
+  color: #000;
+}
+
+/** general styles: **/
+
+/* anchors: */
+
+a {
+  color: #363636;
+  outline: 0;
+}
+
+a:active,
+a:focus {
+  outline: 0;
+}
+
+a:visited {
+  color: #696969;
+  outline: 0;
+}
+
+/* checkboxes: */
+
+input[type="checkbox"] {
+  transform: scale(1.2);
+}
+
+/* buttons: */
+
+button {
+  font-size: 1.1em;
+  color: #ffffff;
+  background-color: #4a90d9;
+  border: 1px solid #4a90d9;
+  border-radius: 0.25em;
+  padding: 0.5em;
+  margin: 0.2em;
+  cursor: pointer;
+  transition-property: background-color;
+  transition-duration: 0.4s;
+  transition-timing-function: linear;
+}
+
+button:focus, button:active, button:hover {
+  background-color: #6ab0f9;
+  border: 1px solid #8ad0f9;
+}
+
+button:disabled, button[disabled] {
+  color: #eeeeee;
+  background-color: #9c9c9c;
+  border: 1px solid #9c9c9c;
+  cursor: auto;
+}
+
+/* remove outlines from active buttons: */
+button, button:focus, button:active {
+  outline: 0;
+}
+:focus {outline:none;}
+::-moz-focus-inner {border:0;}
+
+/** main container: **/
+
+.container {
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: auto;
+  padding: 0;
+}
+
+/** header: **/
+
+.header {
+  background-color: #ffffff;
+  min-height: 4em;
+  padding: 0.5em;
+}
+
+@media only screen and (min-width: 1200px) {
+  .header {
+    margin-top: 1em;
+  }
+}
+
+.header_logo_img {
+  max-height: 4em;
+}
+
+@media only screen and (min-width: 350px) {
+  #header_logo_img_small {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 350px) {
+  #header_logo_img {
+    display: none;
+  }
+}
+
+.header_break {
+  background-color: #0e1c3f;
+  height: 0.5em;
+  margin-top: 0.5em;
+}
+
+/** content: **/
+
+.content {
+  color: #000000;
+  background-color: #ffffff;
+  padding: 1.5em;
+}
+
+/** footer: **/
+
+.footer {
+  background-color: #0c0c0c;
+  min-height: 1em;
+  padding: 0.25em;
+}
+
+@media only screen and (min-width: 1200px) {
+  .footer {
+    margin-bottom: 1em;
+  }
+}
+
+/** flex elements: **/
+
+.flex_row {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+/** content elements: **/
+
+/* headings: */
+
+.heading {
+  font-size: 1.2em;
+  margin-top: 0.5em;
+  margin-bottom: 1em;
+  color: #3c3c3c;
+}
+
+.heading label {
+  color: #000000;
+  font-weight: bold;
+}
+
+/* labels: */
+
+.label {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  color: #3c3c3c;
+}
+
+.label label {
+  color: #000000;
+  font-weight: bold;
+}
+
+/* input element sections: */
+
+.input_element {
+  margin-right: 1em;
+  margin-bottom: 0.5em;
+}
+
+/* date input: */
+
+.input_date {
+  font-size: 1.2em;
+}
+
+/* data select elements: */
+
+.select_data {
+  display: flex;
+  justify-content: space-between;
+  width: 16em;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+.select_data label {
+  display: flex;
+  flex: max-content;
+}
+
+.select_data:hover {
+  color: #0066cc;
+}
+
+.select_data > label:hover {
+  color: #000000;
+}
+
+/* file sect elements: */
+
+.select_files {
+  margin-right: 2em;
+}
+
+/* search results: */
+
+#results {
+  margin-top: 2em;
+}
