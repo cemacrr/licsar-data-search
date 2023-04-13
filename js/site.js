@@ -139,6 +139,22 @@ function load_frames() {
   frames_req.send(null);
 };
 
+/* function to format file size: */
+function format_size(file_size) {
+  /* if in the gb range: */
+  if (file_size > 1073741824) {
+    var file_size_format = (file_size / 1073741824).toFixed(1) + 'G';
+  /* if in the mb range: */
+  } else if (file_size > 1048576) {
+    var file_size_format = (file_size / 1048576).toFixed(1) + 'M';
+  /* everything else is in the kb range: */
+  } else {
+    var file_size_format = (file_size / 1024).toFixed(1) + 'K';
+  };
+  /* return the formatted file_size: */
+  return file_size_format;
+};
+
 /* function to search frame information: */
 function search_frame_info(frame_info) {
   /* frame id: */
@@ -149,6 +165,10 @@ function search_frame_info(frame_info) {
   var search_results_el = site_vars['div_search_results'];
   /* init inner html for information element: */
   var inner_html = '';
+  /* init file size totals: */
+  var total_metadata_size = 0;
+  var total_epoch_size = 0;
+  var total_ifg_pair_size = 0;
   /* init list for storing search results: */
   var search_results = [];
   /* remote paths to data for this frame: */
@@ -176,6 +196,7 @@ function search_frame_info(frame_info) {
     var frame_metadata = frame_info['metadata'];
     /* loop through metadata files: */
     var frame_metadata_files = frame_metadata['files'];
+    var frame_metadata_sizes = frame_metadata['sizes'];
     for (var i = 0; i < frame_metadata_files.length; i++) {
       /* remote url for this file: */
       var metadata_file = frame_metadata_files[i];
@@ -183,8 +204,10 @@ function search_frame_info(frame_info) {
                               remote_metadata_path + '/' +
                               metadata_file;
       /* add file information to html: */
+      var metadata_size = frame_metadata_sizes[i];
+      total_metadata_size += metadata_size;
       inner_html += '<div><a href="' + metadata_file_url + '">' +
-                    metadata_file + '</a></div>';
+                    metadata_file + '</a> (' + format_size(metadata_size) + ')</div>';
 
       /* store search results: */
       search_results.push({
@@ -194,11 +217,15 @@ function search_frame_info(frame_info) {
       })
     };
     /* update file count: */
-    if (frame_metadata_files.length == 1) {
-      metadata_count_el.innerHTML = '(1 file)';
+    if (frame_metadata_files.length == 0) {
+      metadata_count_el.innerHTML = '(0 files)';
+    } else if (frame_metadata_files.length == 1) {
+      metadata_count_el.innerHTML = '(1 file, ' +
+                                    format_size(total_metadata_size) + ')';
     } else {
       metadata_count_el.innerHTML = '(' + frame_metadata_files.length +
-                                    ' files)';
+                                    ' files, ' +
+                                    format_size(total_metadata_size) + ')';
     };
     /* update the element html content: */
     metadata_results_el.innerHTML = inner_html;
@@ -250,6 +277,7 @@ function search_frame_info(frame_info) {
       };
       /* loop through files: */
       var frame_epoch_files = frame_epoch_info['files'];
+      var frame_epoch_sizes = frame_epoch_info['sizes'];
       for (var i = 0; i < frame_epoch_files.length; i++) {
         /* skip if this file type is not requested: */
         if (include_epoch_files.indexOf(frame_epoch_files[i]) < 0) {
@@ -261,8 +289,10 @@ function search_frame_info(frame_info) {
                                    remote_epochs_path + '/' + frame_epoch + '/' +
                                    frame_epoch_file;
         /* add file information to html: */
+        var frame_epoch_size = frame_epoch_sizes[i];
+        total_epoch_size += frame_epoch_size;
         inner_html += '<div><a href="' + frame_epoch_file_url + '">' +
-                      frame_epoch_file + '</a></div>';
+                      frame_epoch_file + '</a> (' + format_size(frame_epoch_size) + ')</div>';
         /* store search results: */
         search_results.push({
           'name': frame_epoch_file,
@@ -274,11 +304,15 @@ function search_frame_info(frame_info) {
       };
     };
     /* update file count: */
-    if (frame_epoch_file_count == 1) {
-      epoch_count_el.innerHTML = '(1 file)';
+    if (frame_epoch_file_count == 0) {
+      epoch_count_el.innerHTML = '(0 files)';
+    } else if (frame_epoch_file_count == 1) {
+      epoch_count_el.innerHTML = '(1 file, ' + format_size(total_epoch_size) +
+                                 ')';
     } else {
       epoch_count_el.innerHTML = '(' + frame_epoch_file_count +
-                                 ' files)';
+                                 ' files, ' + format_size(total_epoch_size) +
+                                 ')';
     };
     /* update the element html content: */
     epoch_results_el.innerHTML = inner_html;
@@ -331,6 +365,7 @@ function search_frame_info(frame_info) {
       };
       /* loop through files: */
       var ifg_pair_files = ifg_pair_info['files'];
+      var ifg_pair_sizes = ifg_pair_info['sizes'];
       for (var i = 0; i < ifg_pair_files.length; i++) {
         /* skip if this file type is not requested: */
         if (include_ifg_files.indexOf(ifg_pair_files[i]) < 0) {
@@ -342,8 +377,10 @@ function search_frame_info(frame_info) {
                                 remote_ifgs_path + '/' + ifg_pair + '/' +
                                 ifg_pair_file;
         /* add file information to html: */
+        var ifg_pair_size = ifg_pair_sizes[i];
+        total_ifg_pair_size += ifg_pair_size;
         inner_html += '<div><a href="' + ifg_pair_file_url + '">' +
-                      ifg_pair_file + '</a></div>';
+                      ifg_pair_file + '</a> (' + format_size(ifg_pair_size) + ')</div>';
         /* store search results: */
         search_results.push({
           'name': ifg_pair_file,
@@ -355,11 +392,15 @@ function search_frame_info(frame_info) {
       };
     };
     /* update file count: */
-    if (frame_ifg_file_count == 1) {
-      ifg_count_el.innerHTML = '(1 file)';
+    if (frame_ifg_file_count == 0) {
+      ifg_count_el.innerHTML = '(0 files)';
+    } else if (frame_ifg_file_count == 1) {
+      ifg_count_el.innerHTML = '(1 file, ' + format_size(total_ifg_pair_size) +
+                               ')';
     } else {
       ifg_count_el.innerHTML = '(' + frame_ifg_file_count +
-                               ' files)';
+                               ' files, ' + format_size(total_ifg_pair_size) +
+                               ')';
     };
     /* update the element html content: */
     ifg_results_el.innerHTML = inner_html;
@@ -374,10 +415,16 @@ function search_frame_info(frame_info) {
     ifg_el.style.display = 'none';
   };
   /* update search results counts: */
-  if (search_results.length == 1) {
-    results_count_el.innerHTML = '(1 file)';
+  var total_file_size = total_metadata_size + total_epoch_size +
+                        total_ifg_pair_size;
+  if (search_results.length == 0) {
+    results_count_el.innerHTML = '(0 files)';
+  } else if (search_results.length == 1) {
+    results_count_el.innerHTML = '(1 file, ' + format_size(total_file_size) +
+                                 ')';
   } else {
-    results_count_el.innerHTML = '(' + search_results.length + ' files)';
+    results_count_el.innerHTML = '(' + search_results.length + ' files, ' + 
+                                 format_size(total_file_size) + ')';
   };
   /* if any search results: */
   if (search_results.length > 0) {

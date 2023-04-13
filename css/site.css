@@ -219,3 +219,9 @@ button, button:focus, button:active {
 #results {
   margin-top: 2em;
 }
+
+#metadata_search_results div,
+#epoch_search_results div,
+#ifg_search_results div {
+  color: #363636;
+}
