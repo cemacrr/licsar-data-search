@@ -48,9 +48,10 @@ var site_vars = {
   'div_ifg_results': document.getElementById('ifg_results'),
   'div_ifg_search_results': document.getElementById('ifg_search_results'),
   'div_ifg_results_display': null,
-  /* urls for python download script fragments: */
-  'python_script_head': 'scripts/python_licsar.py.head',
-  'python_script_tail': 'scripts/python_licsar.py.tail'
+  /* urls for download script templates: */
+  'python_script_template': 'scripts/get_licsar_files.py',
+  'wget_script_template': 'scripts/wget_licsar_files.sh',
+  'curl_script_template': 'scripts/curl_licsar_files.sh'
 };
 
 /** functions: **/
@@ -483,16 +484,11 @@ function search_files() {
 
 /* function to return a python script to download found files: */
 async function get_script_python() {
-  /* get script head using fetch: */
-  var python_head_req = await fetch(site_vars['python_script_head']);
-  var python_head = await python_head_req.text();
-  /* get script tail unsing fetch: */
-  var python_tail_req = await fetch(site_vars['python_script_tail']);
-  var python_tail = await python_tail_req.text();
-  /* start script text content: */
-  var script_text_header = 'data:text/plain;charset=utf-8,';
-  /* add script head: */
-  var script_text = python_head;
+  /* get script template using fetch: */
+  var python_template_req = await fetch(site_vars['python_script_template']);
+  var python_template = await python_template_req.text();
+  /* init text for list of files: */
+  var file_text = '';
   /* loop through search results: */
   for (var i = 0; i < site_vars['search_results'].length; i++) {
       /* details for this file: */
@@ -500,20 +496,20 @@ async function get_script_python() {
       var file_path = site_vars['search_results'][i]['path'];
       var file_url = site_vars['search_results'][i]['url'];
       /* commands to make output directory and python file: */
-      script_text += '    {\'name\': \'' + file_name + '\', \'path\': \'' +
-                     file_path + '\', \'url\': \'' + file_url + '\'}';
+      file_text += '    {\'name\': \'' + file_name + '\', \'path\': \'' +
+                   file_path + '\', \'url\': \'' + file_url + '\'}';
       if (i < (site_vars['search_results'].length - 1)) {
-        script_text += ',\n';
-      } else {
-        script_text += '\n';
+        file_text += ',\n';
       };
   };
-  /* add script tail: */
-  script_text += python_tail;
+  /* search and replace file list in template: */
+  var script_text = python_template.replace('{{ FILES }}', file_text);
+  /* script text header: */
+  var script_text_header = 'data:text/plain;charset=utf-8,';
   /* encode text data: */
   var encoded_uri = script_text_header + encodeURIComponent(script_text);
   /* name for text file: */
-  var text_name = 'python_get_licsar_files.py';
+  var text_name = 'get_licsar_files.py';
   /* create a temporary link element: */
   var text_link = document.createElement("a");
   text_link.setAttribute("href", encoded_uri);
@@ -526,14 +522,12 @@ async function get_script_python() {
 };
 
 /* function to return a wget script to download found files: */
-function get_script_wget() {
-  /* start text content: */
-  var script_text_header = 'data:text/plain;charset=utf-8,';
-  /* header line: */
-  var script_text = '#!/usr/bin/env bash\n\n';
-  /* variables: */
-  script_text += 'OUT_DIR=\'.\'\n';
-  script_text += 'WGET_OPTIONS=\'-c -N\'\n\n';
+async function get_script_wget() {
+  /* get script template using fetch: */
+  var wget_template_req = await fetch(site_vars['wget_script_template']);
+  var wget_template = await wget_template_req.text();
+  /* init text for list of files: */
+  var file_text = '';
   /* loop through search results: */
   for (var i = 0; i < site_vars['search_results'].length; i++) {
       /* details for this file: */
@@ -541,10 +535,14 @@ function get_script_wget() {
       var file_path = site_vars['search_results'][i]['path'];
       var file_url = site_vars['search_results'][i]['url'];
       /* commands to make output directory and wget file: */
-      script_text += 'mkdir -p "${OUT_DIR}/' + file_path + '"\n';
-      script_text += 'wget ${WGET_OPTIONS} -P \'' + file_path +
-                     '\' \'' + file_url + '\'\n';
+      file_text += 'mkdir -p "${OUT_DIR}/' + file_path + '"\n';
+      file_text += 'wget ${WGET_OPTIONS} -P \'' + file_path +
+                   '\' \'' + file_url + '\'\n';
   };
+  /* search and replace file list in template: */
+  var script_text = wget_template.replace('{{ FILES }}', file_text);
+  /* script text header: */
+  var script_text_header = 'data:text/plain;charset=utf-8,';
   /* encode text data: */
   var encoded_uri = script_text_header + encodeURIComponent(script_text);
   /* name for text file: */
@@ -561,14 +559,12 @@ function get_script_wget() {
 };
 
 /* function to return a curl script to download found files: */
-function get_script_curl() {
-  /* start text content: */
-  var script_text_header = 'data:text/plain;charset=utf-8,';
-  /* header line: */
-  var script_text = '#!/usr/bin/env bash\n\n';
-  /* variables: */
-  script_text += 'OUT_DIR=\'.\'\n';
-  script_text += 'CURL_OPTIONS=\'-C - -L -R\'\n\n';
+async function get_script_curl() {
+  /* get script template using fetch: */
+  var curl_template_req = await fetch(site_vars['curl_script_template']);
+  var curl_template = await curl_template_req.text();
+  /* init text for list of files: */
+  var file_text = '';
   /* loop through search results: */
   for (var i = 0; i < site_vars['search_results'].length; i++) {
       /* details for this file: */
@@ -576,10 +572,14 @@ function get_script_curl() {
       var file_path = site_vars['search_results'][i]['path'];
       var file_url = site_vars['search_results'][i]['url'];
       /* commands to make output directory and curl file: */
-      script_text += 'mkdir -p "${OUT_DIR}/' + file_path + '"\n';
-      script_text += 'curl ${CURL_OPTIONS} -o \'' + file_path + '/' +
-                     file_name + '\' \'' + file_url + '\'\n';
+      file_text += 'mkdir -p "${OUT_DIR}/' + file_path + '"\n';
+      file_text += 'curl ${CURL_OPTIONS} -o \'' + file_path + '/' +
+                   file_name + '\' \'' + file_url + '\'\n';
   };
+  /* search and replace file list in template: */
+  var script_text = curl_template.replace('{{ FILES }}', file_text);
+  /* script text header: */
+  var script_text_header = 'data:text/plain;charset=utf-8,';
   /* encode text data: */
   var encoded_uri = script_text_header + encodeURIComponent(script_text);
   /* name for text file: */

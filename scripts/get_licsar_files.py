@@ -1,12 +1,37 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# ---
+
+from __future__ import division
+from ctypes import c_int
+import datetime
+from multiprocessing import Manager, Pool
+import os
+import sys
+import time
+try:
+    from urllib.request import Request, urlopen
+except ImportError:
+    from urllib2 import Request, urlopen
+
+# ---
+
+OUT_DIR = '.'
+POOL_SIZE = 2
+LICSAR_FILES = [
+{{ FILES }}
 ]
 
 # ---
 
 def display_progress(progress_count, progress_total):
     percent_complete = (progress_count / progress_total) * 100
-    file_msg = '\r  progress : {0:.02f} %'
+    file_msg = '\r{0:04d} of {1:04d} files downloaded ({2:.02f}%)'
     sys.stdout.flush()
-    sys.stdout.write(file_msg.format(percent_complete))
+    sys.stdout.write(file_msg.format(
+        progress_count, progress_total, percent_complete
+    ))
     sys.stdout.flush()
 
 def mp_wrapper(mp_options):
@@ -59,7 +84,7 @@ def mp_run(mp_function, mp_options, pool_size, mp_display_progress=True):
             pass
         sys.stdout.write('\n')
         sys.exit()
-    display_progress(1, 1)
+    display_progress(len(mp_options), len(mp_options))
     sys.stdout.write('\n')
     sys.stdout.flush()
     mp_manager.shutdown()
