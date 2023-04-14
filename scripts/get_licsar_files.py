@@ -39,10 +39,10 @@ def format_size(value, total_size):
     value_str = '{0:5.01f}{1}'.format(value, units)
     return value_str
 
-def display_progress(progress_count, progress_total, current_size):
-    percent_complete = (current_size / TOTAL_SIZE) * 100
-    current_size_str = format_size(current_size, TOTAL_SIZE)
-    total_size_str = format_size(TOTAL_SIZE, TOTAL_SIZE)
+def display_progress(progress_count, progress_total, current_size, total_size):
+    percent_complete = (current_size / total_size) * 100
+    current_size_str = format_size(current_size, total_size)
+    total_size_str = format_size(total_size, total_size)
     file_count_fmt = '{{:{0}d}}'.format(len(str(progress_total)))
     progress_count_str = file_count_fmt.format(progress_count) 
     progress_total_str = file_count_fmt.format(progress_total) 
@@ -64,16 +64,21 @@ def mp_wrapper(mp_options):
         mp_lock = mp_options['mp_lock']
         mp_display_progress = mp_options['mp_display_progress']
         file_size = mp_options['size']
+        total_size = mp_options['total_size']
         if mp_display_progress:
             mp_lock.acquire()
-            display_progress(mp_progress.value, mp_count, mp_size.value)
+            display_progress(
+                mp_progress.value, mp_count, mp_size.value, total_size
+            )
             mp_lock.release()
         mp_out = mp_function(mp_options)
         mp_progress.value += 1
         mp_size.value += file_size
         if mp_display_progress:
             mp_lock.acquire()
-            display_progress(mp_progress.value, mp_count, mp_size.value)
+            display_progress(
+                mp_progress.value, mp_count, mp_size.value, total_size
+            )
             mp_lock.release()
         return mp_out
     except KeyboardInterrupt:
@@ -94,6 +99,7 @@ def mp_run(mp_function, mp_options, pool_size, mp_display_progress=True):
         mp_option['mp_count'] = len(mp_options)
         mp_option['mp_progress'] = mp_progress
         mp_option['mp_size'] = mp_size
+        mp_option['total_size'] = TOTAL_SIZE
         mp_option['mp_lock'] = mp_lock
         mp_option['mp_display_progress'] = mp_display_progress
     mp_pool = Pool(pool_size)
@@ -110,7 +116,7 @@ def mp_run(mp_function, mp_options, pool_size, mp_display_progress=True):
             pass
         sys.stdout.write('\n')
         sys.exit()
-    display_progress(len(mp_options), len(mp_options), TOTAL_SIZE)
+    display_progress(len(mp_options), len(mp_options), TOTAL_SIZE, TOTAL_SIZE)
     sys.stdout.write('\n')
     sys.stdout.flush()
     mp_manager.shutdown()
