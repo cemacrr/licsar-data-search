@@ -214,7 +214,8 @@ function search_frame_info(frame_info) {
       search_results.push({
         'name': metadata_file,
         'path': frame_id + '/metadata',
-        'url': metadata_file_url
+        'url': metadata_file_url,
+        'size': metadata_size
       })
     };
     /* update file count: */
@@ -298,7 +299,8 @@ function search_frame_info(frame_info) {
         search_results.push({
           'name': frame_epoch_file,
           'path': frame_id + '/epochs/' + frame_epoch,
-          'url': frame_epoch_file_url
+          'url': frame_epoch_file_url,
+          'size': frame_epoch_size
         })
         /* increment the count: */
         frame_epoch_file_count += 1;
@@ -386,7 +388,8 @@ function search_frame_info(frame_info) {
         search_results.push({
           'name': ifg_pair_file,
           'path': frame_id + '/interferograms/' + ifg_pair,
-          'url': ifg_pair_file_url
+          'url': ifg_pair_file_url,
+          'size': ifg_pair_size
         })
         /* increment the count: */
         frame_ifg_file_count += 1;
@@ -495,9 +498,11 @@ async function get_script_python() {
       var file_name = site_vars['search_results'][i]['name'];
       var file_path = site_vars['search_results'][i]['path'];
       var file_url = site_vars['search_results'][i]['url'];
+      var file_size = site_vars['search_results'][i]['size'];
       /* commands to make output directory and python file: */
       file_text += '    {\'name\': \'' + file_name + '\', \'path\': \'' +
-                   file_path + '\', \'url\': \'' + file_url + '\'}';
+                   file_path + '\', \'url\': \'' + file_url +
+                   '\', \'size\': ' + file_size + '}';
       if (i < (site_vars['search_results'].length - 1)) {
         file_text += ',\n';
       };
