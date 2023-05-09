@@ -1,7 +1,8 @@
 /** body: **/
 
 body {
-  background-color: #484848;
+/*****  background-color: #484848; *****/
+  background-color: #ffffff;
   margin: 0;
   padding: 0;
   font-family: sans-serif, "Arial", "Helvetica";
@@ -84,9 +85,11 @@ button, button:focus, button:active {
   background-color: #ffffff;
   min-height: 4em;
   padding: 0.5em;
+  display: none;
 }
 
-@media only screen and (min-width: 1200px) {
+/***** @media only screen and (min-width: 1200px) { *****/
+@media only screen and (min-width: 9999px) {
   .header {
     margin-top: 1em;
   }
@@ -128,9 +131,11 @@ button, button:focus, button:active {
   background-color: #0c0c0c;
   min-height: 1em;
   padding: 0.25em;
+  display: none;
 }
 
-@media only screen and (min-width: 1200px) {
+/***** @media only screen and (min-width: 1200px) { *****/
+@media only screen and (min-width: 9999px) {
   .footer {
     margin-bottom: 1em;
   }
