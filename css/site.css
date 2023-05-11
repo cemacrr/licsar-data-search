@@ -184,6 +184,35 @@ button, button:focus, button:active {
   margin-bottom: 0.5em;
 }
 
+/* frame inputs: */
+
+.input_frame_id {
+  margin-right: 0.4em;
+  margin-bottom: 0.2em;
+  min-height: 2em;
+  min-width: 15em;
+}
+
+.frame_button {
+  font-size: 1.2em;
+  font-weight: bold;
+  height: 1.3em;
+  width: 1.3em;
+  color: #eeeeee;
+  background-color: #2488cb;
+  border: 1px solid #2488cb;
+  border-radius: 0em;
+  margin-left: 0.5em;
+  margin-right: 0em;
+  margin-top: 0.2em;
+  padding: 0em;
+  cursor: pointer;
+}
+
+#remove_frame_button {
+  display: none;
+}
+
 /* date input: */
 
 .input_date {

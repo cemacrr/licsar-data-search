@@ -68,14 +68,24 @@
                class="label">
             <label>Frame ID</label>
           </div>
-          <div>
-            <input id="input_frame_id"
-                   name="frame_id"
+          <div id="frame_id_inputs"
+               class="flex_row">
+            <datalist id="datalist_frame_id">
+            </datalist>
+            <input id="input_frame_id1"
+                   class="input_frame_id"
+                   name="frame_id1"
                    list="datalist_frame_id"
                    maxlength="17"
                    disabled>
-            <datalist id="datalist_frame_id">
-            </datalist>
+            <button id="remove_frame_button"
+                    class="frame_button">
+              -
+            </button>
+            <button id="add_frame_button"
+                    class="frame_button">
+              +
+            </button>
           </div>
         </div>
         <!-- date inputs: _________________________________________________ -->

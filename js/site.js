@@ -12,8 +12,13 @@ var site_vars = {
   'frames_path': 'frames.json',
   /* variable for storing list of frames: */
   'frames': null,
-  /* frame ids input: */
-  'input_frame_id': document.getElementById('input_frame_id'),
+  /* frame inputs container: */
+  'frames_inputs': document.getElementById('frame_id_inputs'),
+  /* remove / add frame button: */
+  'remove_frame': document.getElementById('remove_frame_button'),
+  'add_frame': document.getElementById('add_frame_button'),
+  /* frame ids input values: */
+  'frame_ids': [],
   /* frame ids data list: */
   'datalist_frame_id': document.getElementById('datalist_frame_id'),
   /* date inputs: */
@@ -73,8 +78,11 @@ function update_datalist(html_el, option_values) {
 function setup_inputs() {
   /* update frame ids datalist: */
   update_datalist(site_vars['datalist_frame_id'], site_vars['frames']);
-  /* enable frame id input element: */
-  site_vars['input_frame_id'].disabled = false;
+  /* enable frame id input elements: */
+  var input_frame_ids = document.getElementsByClassName('input_frame_id');
+  for (var i = 0; i < input_frame_ids.length; i++) {
+    input_frame_ids[i].disabled = false;
+  };
   /* get current date for date inputs; */
   var date_now = new Date();
   var day_now = date_now.getDate();
@@ -427,7 +435,7 @@ function search_frame_info(frame_info) {
     results_count_el.innerHTML = '(1 file, ' + format_size(total_file_size) +
                                  ')';
   } else {
-    results_count_el.innerHTML = '(' + search_results.length + ' files, ' + 
+    results_count_el.innerHTML = '(' + search_results.length + ' files, ' +
                                  format_size(total_file_size) + ')';
   };
   /* if any search results: */
@@ -451,7 +459,13 @@ function search_frame_info(frame_info) {
 /* function to fetch list of files: */
 function search_files() {
   /* get selected frame id: */
-  var selected_frame_id = site_vars['input_frame_id'].value;
+
+///  var selected_frame_id = site_vars['input_frame_id'].value;
+  var input_frame_ids = document.getElementsByClassName('input_frame_id');
+  var selected_frame_id = input_frame_ids[0].value;
+
+
+
   /* directory which contains json for this frame: */
   var frame_dir = selected_frame_id.split('_')[0];
   /* path to frame json file: */
@@ -600,6 +614,79 @@ async function get_script_curl() {
   document.body.removeChild(text_link);
 };
 
+
+
+/* add frame input element: */
+function add_frame_input() {
+  /* frame inputs container: */
+  var frames_inputs = site_vars['frames_inputs'];
+  /* remove and add frame button elements: */
+  var remove_frame = site_vars['remove_frame'];
+  var add_frame = site_vars['add_frame'];
+  /* get existing frame elements and count: */
+  var frames_els = document.getElementsByClassName(
+    'input_frame_id'
+  );
+  var frame_count = frames_els.length;
+  /* new element number / id: */
+  var new_frame = frame_count + 1;
+  /* add the new element: */
+  var frame_input = document.createElement('input');
+  frame_input.id = 'input_frame_id' + new_frame;
+  frame_input.classList = 'input_frame_id';
+  frame_input.type = 'text';
+  frame_input.name = 'frame+id' + new_frame;
+  frame_input.setAttribute('list', 'datalist_frame_id');
+  frame_input.maxLength = 17;
+  frame_input.value = '';
+  frames_inputs.insertBefore(frame_input, remove_frame);
+  /* enable remove button: */
+  remove_frame.style.display = 'inline';
+  /* focus the new element: */
+  frame_input.focus();
+  frame_input.select();
+  /* remove add button if we get to 10 inputs: */
+  if (frame_count > 8) {
+    add_frame.style.display = 'none';
+  };
+};
+
+/* remove frame input element: */
+function remove_frame_input() {
+  /* frame inputs container: */
+  var frames_inputs = site_vars['frames_inputs'];
+  /* remove and add frame button elements: */
+  var remove_frame = site_vars['remove_frame'];
+  var add_frame = site_vars['add_frame'];
+  /* get existing frame elements and count: */
+  var frames_els = document.getElementsByClassName(
+    'input_frame_id'
+  );
+  var frame_count = frames_els.length;
+  /* get the final input element: */
+  var frame_input = document.getElementById('input_frame_id' + frame_count);
+  /* remove the element: */
+  frame_input.parentNode.removeChild(frame_input);
+  /* disable remove button, if only one input left: */
+  if (frame_count < 3) {
+    remove_frame.style.display = 'none';
+  };
+  /* enable add button if less than 10 inputs: */
+  if (frame_count < 11) {
+    add_frame.style.display = 'inline';
+  };
+};
+
+/* add input listeners: */
+function add_listeners() {
+  /* remove and add frame button elements: */
+  var remove_frame = site_vars['remove_frame'];
+  var add_frame = site_vars['add_frame'];
+  /* add listeners for frame add and remove buttons: */
+  add_frame.addEventListener('click', add_frame_input);
+  remove_frame.addEventListener('click', remove_frame_input);
+};
+
 /** add listeners: **/
 
 /* on page load: */
@@ -608,4 +695,6 @@ window.addEventListener('load', function() {
   page_setup();
   /* load frames: */
   load_frames();
+  /* add listeners to various elements: */
+  add_listeners();
 });
