@@ -192,9 +192,11 @@ function search_frames_info(frames_info) {
   for (var i = 0; i < frames_info.length; i++) {
     /* info for this frame: */
     var frame_info = frames_info[i];
+    /* id for this frame: */
+    var frame_id = frame_info['id'];
     /* init results for this frame: */
     var frame_results = {
-      'id': frame_info['id'],
+      'id': frame_id,
       'path': frame_info['path'],
       'metadata': [],
       'epochs': [],
@@ -232,7 +234,7 @@ function search_frames_info(frames_info) {
         /* store search results: */
         frame_results['metadata'].push({
           'name': metadata_file,
-          'path': frame_info['id'] + '/metadata',
+          'path': frame_id + '/metadata',
           'url': metadata_file_url,
           'size': metadata_size
         })
@@ -567,20 +569,42 @@ async function get_script_python() {
   var python_template = await python_template_req.text();
   /* init text for list of files: */
   var file_text = '';
-  /* loop through search results: */
-  for (var i = 0; i < site_vars['search_results'].length; i++) {
-      /* details for this file: */
-      var file_name = site_vars['search_results'][i]['name'];
-      var file_path = site_vars['search_results'][i]['path'];
-      var file_url = site_vars['search_results'][i]['url'];
-      var file_size = site_vars['search_results'][i]['size'];
-      /* commands to make output directory and python file: */
-      file_text += '    {\'name\': \'' + file_name + '\', \'path\': \'' +
-                   file_path + '\', \'url\': \'' + file_url +
-                   '\', \'size\': ' + file_size + '}';
-      if (i < (site_vars['search_results'].length - 1)) {
-        file_text += ',\n';
+  /* results file types: */
+  var results_types = ['metadata', 'epochs', 'ifgs'];
+  /* results for all frames: */
+  var frames_results = site_vars['search_results']['frames'];
+  /* total file count: */
+  var total_file_count = site_vars['search_results']['total_count'];
+  /* file count: */
+  var file_count = 0;
+  /* loop throuhg frames: */
+  for (var i = 0; i < frames_results.length; i++) {
+    /* results for this frame: */
+    var frame_results = frames_results[i];
+    /* loop through types: */
+    for (var j = 0; j < results_types.length; j++) {
+      /* this file type: */
+      var results_type = results_types[j];
+      /* results for this file type: */
+      var results_files = frame_results[results_type];
+      /* loop through search results: */
+      for (var k = 0; k < results_files.length; k++) {
+          /* increment file count: */
+          file_count += 1;
+          /* details for this file: */
+          var file_name = results_files[k]['name'];
+          var file_path = results_files[k]['path'];
+          var file_url = results_files[k]['url'];
+          var file_size = results_files[k]['size'];
+          /* commands to make output directory and python file: */
+          file_text += '    {\'name\': \'' + file_name + '\', \'path\': \'' +
+                       file_path + '\', \'url\': \'' + file_url +
+                       '\', \'size\': ' + file_size + '}';
+          if (file_count < total_file_count) {
+            file_text += ',\n';
+          };
       };
+    };
   };
   /* search and replace file list in template: */
   var script_text = python_template.replace('{{ FILES }}', file_text);
@@ -608,16 +632,32 @@ async function get_script_wget() {
   var wget_template = await wget_template_req.text();
   /* init text for list of files: */
   var file_text = '';
-  /* loop through search results: */
-  for (var i = 0; i < site_vars['search_results'].length; i++) {
-      /* details for this file: */
-      var file_name = site_vars['search_results'][i]['name'];
-      var file_path = site_vars['search_results'][i]['path'];
-      var file_url = site_vars['search_results'][i]['url'];
-      /* commands to make output directory and wget file: */
-      file_text += 'mkdir -p "${OUT_DIR}/' + file_path + '"\n';
-      file_text += 'wget ${WGET_OPTIONS} -P \'' + file_path +
-                   '\' \'' + file_url + '\'\n';
+  /* results file types: */
+  var results_types = ['metadata', 'epochs', 'ifgs'];
+  /* results for all frames: */
+  var frames_results = site_vars['search_results']['frames'];
+  /* loop throuhg frames: */
+  for (var i = 0; i < frames_results.length; i++) {
+    /* results for this frame: */
+    var frame_results = frames_results[i];
+    /* loop through types: */
+    for (var j = 0; j < results_types.length; j++) {
+      /* this file type: */
+      var results_type = results_types[j];
+      /* results for this file type: */
+      var results_files = frame_results[results_type];
+      /* loop through search results: */
+      for (var k = 0; k < results_files.length; k++) {
+          /* details for this file: */
+          var file_name = results_files[k]['name'];
+          var file_path = results_files[k]['path'];
+          var file_url = results_files[k]['url'];
+          /* commands to make output directory and wget file: */
+          file_text += 'mkdir -p "${OUT_DIR}/' + file_path + '"\n';
+          file_text += 'wget ${WGET_OPTIONS} -P \'' + file_path +
+                       '\' \'' + file_url + '\'\n';
+      };
+    };
   };
   /* search and replace file list in template: */
   var script_text = wget_template.replace('{{ FILES }}', file_text);
@@ -645,16 +685,32 @@ async function get_script_curl() {
   var curl_template = await curl_template_req.text();
   /* init text for list of files: */
   var file_text = '';
-  /* loop through search results: */
-  for (var i = 0; i < site_vars['search_results'].length; i++) {
-      /* details for this file: */
-      var file_name = site_vars['search_results'][i]['name'];
-      var file_path = site_vars['search_results'][i]['path'];
-      var file_url = site_vars['search_results'][i]['url'];
-      /* commands to make output directory and curl file: */
-      file_text += 'mkdir -p "${OUT_DIR}/' + file_path + '"\n';
-      file_text += 'curl ${CURL_OPTIONS} -o \'' + file_path + '/' +
-                   file_name + '\' \'' + file_url + '\'\n';
+  /* results file types: */
+  var results_types = ['metadata', 'epochs', 'ifgs'];
+  /* results for all frames: */
+  var frames_results = site_vars['search_results']['frames'];
+  /* loop throuhg frames: */
+  for (var i = 0; i < frames_results.length; i++) {
+    /* results for this frame: */
+    var frame_results = frames_results[i];
+    /* loop through types: */
+    for (var j = 0; j < results_types.length; j++) {
+      /* this file type: */
+      var results_type = results_types[j];
+      /* results for this file type: */
+      var results_files = frame_results[results_type];
+      /* loop through search results: */
+      for (var k = 0; k < results_files.length; k++) {
+          /* details for this file: */
+          var file_name = results_files[k]['name'];
+          var file_path = results_files[k]['path'];
+          var file_url = results_files[k]['url'];
+          /* commands to make output directory and curl file: */
+          file_text += 'mkdir -p "${OUT_DIR}/' + file_path + '"\n';
+          file_text += 'curl ${CURL_OPTIONS} -o \'' + file_path + '/' +
+                       file_name + '\' \'' + file_url + '\'\n';
+      };
+    };
   };
   /* search and replace file list in template: */
   var script_text = curl_template.replace('{{ FILES }}', file_text);
