@@ -166,6 +166,7 @@ function format_size(file_size) {
 
 /* function to search frame information: */
 function search_frame_info(frame_info) {
+  frame_info = frame_info[0];
   /* frame id: */
   var frame_id = frame_info['id'];
   /* html element for search results count: */
@@ -456,47 +457,301 @@ function search_frame_info(frame_info) {
   site_vars['search_results'] = search_results;
 };
 
-/* function to fetch list of files: */
-function search_files() {
-  /* get selected frame id: */
-
-///  var selected_frame_id = site_vars['input_frame_id'].value;
-  var input_frame_ids = document.getElementsByClassName('input_frame_id');
-  var selected_frame_id = input_frame_ids[0].value;
-
-
-
+/* function to get frame information from json file: */
+async function get_frame_info(frame_id) {
   /* directory which contains json for this frame: */
-  var frame_dir = selected_frame_id.split('_')[0];
+  var frame_dir = frame_id.split('_')[0];
   /* path to frame json file: */
   var frame_url = site_vars['metadata_path'] + '/' + frame_dir + '/' +
-                  selected_frame_id + '.json';
-  /* create new request: */
-  var frame_req = new XMLHttpRequest();
-  frame_req.responseType = 'json';
-  frame_req.open('GET', frame_url, true);
-  /* on data download: */
-  frame_req.onload = function() {
-    /* if successful: */
-    if (frame_req.status == 200) {
-      /* update frame information on page: */
-      search_frame_info(frame_req.response);
-    } else {
-      /* log error: */
-      console.log('* failed to load frame information for frame '+
-                  selected_frame_id);
-      /* update frame information on page: */
-      search_frame_info({
-        'id': null,
-        'path': null,
-        'metadata': {'files': []},
-        'epochs': {},
-        'ifgs': {}
-      });
+                  frame_id + '.json';
+  /* get frame info using fetch: */
+  var frame_req = await fetch(frame_url);
+  /* if successful: */
+  if (frame_req.status == 200) {
+    /* frame information from request: */
+    var frame_info = await frame_req.json();
+  } else {
+    /* log error: */
+    console.log('* failed to load frame information for frame ' + frame_id);
+    /* empty frame information: */
+    var frame_info = {
+      'id': null,
+      'path': null,
+      'metadata': {'files': []},
+      'epochs': {},
+      'ifgs': {}
     };
   };
-  /* send the request: */
-  frame_req.send(null);
+  /* return the frame information: */
+  return frame_info;
+};
+
+
+
+
+
+
+
+/* function to search frame information: */
+function search_frames_info(frames_info) {
+  /* init search results: */
+  var results = {
+    'total_count': 0,
+    'total_size': 0,
+    'frames': []
+  };
+  /* get requested start and end dates: */
+  var start_date = site_vars['input_start_date'].value;
+  start_date = parseInt(start_date.replace(/-/g, ''));
+  var end_date = site_vars['input_end_date'].value;
+  end_date = parseInt(end_date.replace(/-/g, ''));
+  /* get metadata checkbox value: */
+  var include_metadata = site_vars['input_include_metadata'].checked;
+  /* loop through frames: */
+  for (var i = 0; i < frames_info.length; i++) {
+    /* info for this frame: */
+    var frame_info = frames_info[i];
+    /* init results for this frame: */
+    var frame_results = {
+      'id': frame_info['id'],
+      'path': frame_info['path'],
+      'metadata': [],
+      'epochs': [],
+      'ifgs': [],
+      'metadata_count': 0,
+      'metadata_size': 0,
+      'epoch_count': 0,
+      'epoch_size': 0,
+      'ifg_count': 0,
+      'ifg_size': 0,
+      'total_count': 0,
+      'total_size': 0
+    };
+    /* remote paths to data for this frame: */
+    var remote_path = frame_info['path'];
+    var remote_metadata_path = remote_path + '/metadata';
+    var remote_epochs_path = remote_path + '/epochs';
+    var remote_ifgs_path = remote_path + '/interferograms';
+    /** metadata: **/
+    /* if metadata is requested: */
+    if (include_metadata == true) {
+      /* get metadata: */
+      var frame_metadata = frame_info['metadata'];
+      /* loop through metadata files: */
+      var frame_metadata_files = frame_metadata['files'];
+      var frame_metadata_sizes = frame_metadata['sizes'];
+      for (var j = 0; j < frame_metadata_files.length; j++) {
+        /* remote url for this file: */
+        var metadata_file = frame_metadata_files[j];
+        var metadata_file_url = site_vars['remote_base_url'] + '/' +
+                                remote_metadata_path + '/' +
+                                metadata_file;
+        /* size of this file: */
+        var metadata_size = frame_metadata_sizes[j];
+        /* store search results: */
+        frame_results['metadata'].push({
+          'name': metadata_file,
+          'path': frame_info['id'] + '/metadata',
+          'url': metadata_file_url,
+          'size': metadata_size
+        })
+        /* update counts and sizes: */
+        frame_results['metadata_count'] += 1;
+        frame_results['metadata_size'] += metadata_size;
+        frame_results['total_count'] += 1;
+        frame_results['total_size'] += metadata_size;
+        results['total_count'] += 1;
+        results['total_size'] += metadata_size;
+      };
+    };
+    /** epochs: **/
+    /* check which per epoch files are requested: */
+    var include_epoch_files = [];
+    /* loop through epoch files input elements: */
+    for (var j = 0; j < site_vars['input_include_epoch_files'].length; j++) {
+      /* this element: */
+      var include_epoch_file = site_vars['input_include_epoch_files'][j];
+      /* if the box is checked: */
+      if (include_epoch_file.checked == true) {
+        /* add the file to list of those which should be included: */
+        include_epoch_files.push(include_epoch_file.value);
+      };
+    };
+    /* if any epoch files have been requested: */
+    if (include_epoch_files.length > 0) {
+      /* get epochs: */
+      var frame_epochs = frame_info['epochs'];
+      /* loop through epochs: */
+      for (var frame_epoch in frame_epochs) {
+        /* data for this epoch: */
+        var frame_epoch_info = frame_epochs[frame_epoch];
+        /* epoch date as integer: */
+        var frame_epoch_date = parseInt(frame_epoch_info['date']);
+        /* check date is within requested range: */
+        if ((frame_epoch_date < start_date) ||
+            (frame_epoch_date > end_date)) {
+          continue;
+        };
+        /* loop through files: */
+        var frame_epoch_files = frame_epoch_info['files'];
+        var frame_epoch_sizes = frame_epoch_info['sizes'];
+        for (var j = 0; j < frame_epoch_files.length; j++) {
+          /* skip if this file type is not requested: */
+          if (include_epoch_files.indexOf(frame_epoch_files[j]) < 0) {
+            continue;
+          };
+          /* remote url for this file: */
+          var frame_epoch_file = frame_epoch + '.' + frame_epoch_files[j];
+          var frame_epoch_file_url = site_vars['remote_base_url'] + '/' +
+                                     remote_epochs_path + '/' + frame_epoch + '/' +
+                                     frame_epoch_file;
+          /* size of this file: */
+          var frame_epoch_size = frame_epoch_sizes[j];
+          /* store search results: */
+          frame_results['epochs'].push({
+            'name': frame_epoch_file,
+            'path': frame_id + '/epochs/' + frame_epoch,
+            'url': frame_epoch_file_url,
+            'size': frame_epoch_size
+          })
+          /* update counts and sizes: */
+          frame_results['epoch_count'] += 1;
+          frame_results['epoch_size'] += frame_epoch_size;
+          frame_results['total_count'] += 1;
+          frame_results['total_size'] += frame_epoch_size;
+          results['total_count'] += 1;
+          results['total_size'] += frame_epoch_size;
+        };
+      };
+    };
+    /** interferograms: **/
+    /* check which per interferogram files are requested: */
+    var include_ifg_files = [];
+    /* loop through ifg files input elements: */
+    for (var j = 0; j < site_vars['input_include_ifg_files'].length; j++) {
+      /* this element: */
+      var include_ifg_file = site_vars['input_include_ifg_files'][j];
+      /* if the box is checked: */
+      if (include_ifg_file.checked == true) {
+        /* add the file to list of those which should be included: */
+        include_ifg_files.push(include_ifg_file.value);
+      };
+    };
+    /* if any interferogram files have been requested: */
+    if (include_ifg_files.length > 0) {
+      /* get interferograms: */
+      var frame_ifgs = frame_info['ifgs'];
+      /* loop through interferograms: */
+      for (var ifg_pair in frame_ifgs) {
+        /* data for this pair: */
+        var ifg_pair_info = frame_ifgs[ifg_pair];
+        /* sart and end dates as integers for this pair: */
+        var ifg_pair_start = parseInt(ifg_pair_info['start']);
+        var ifg_pair_end = parseInt(ifg_pair_info['end']);
+        /* check date is within requested range: */
+        if ((ifg_pair_start < start_date) ||
+            (ifg_pair_end > end_date)) {
+          continue;
+        };
+        /* loop through files: */
+        var ifg_pair_files = ifg_pair_info['files'];
+        var ifg_pair_sizes = ifg_pair_info['sizes'];
+        for (var j = 0; j < ifg_pair_files.length; j++) {
+          /* skip if this file type is not requested: */
+          if (include_ifg_files.indexOf(ifg_pair_files[j]) < 0) {
+            continue;
+          };
+          /* remote url for this file: */
+          var ifg_pair_file = ifg_pair + '.' + ifg_pair_files[j];
+          var ifg_pair_file_url = site_vars['remote_base_url'] + '/' +
+                                  remote_ifgs_path + '/' + ifg_pair + '/' +
+                                  ifg_pair_file;
+          /* size of this file: */
+          var ifg_pair_size = ifg_pair_sizes[j];
+
+          /* store search results: */
+          frame_results['ifgs'].push({
+            'name': ifg_pair_file,
+            'path': frame_id + '/interferograms/' + ifg_pair,
+            'url': ifg_pair_file_url,
+            'size': ifg_pair_size
+          })
+          /* update counts and sizes: */
+          frame_results['ifg_count'] += 1;
+          frame_results['ifg_size'] += ifg_pair_size;
+          frame_results['total_count'] += 1;
+          frame_results['total_size'] += ifg_pair_size;
+          results['total_count'] += 1;
+          results['total_size'] += ifg_pair_size;
+        };
+      };
+    };
+    /* store frame results: */
+    results['frames'].push(frame_results);
+  };
+  /* return the results: */
+  return results;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* function to filter unique values from array: */
+function get_unique(value, index, array) {
+  return array.indexOf(value) === index;
+}
+
+/* function to fetch list of files: */
+async function search_files() {
+  /* get frame id input elements: */
+  var input_frame_id_els = document.getElementsByClassName('input_frame_id');
+  /* get frame ids: */
+  var input_frame_ids = [];
+  for (var i = 0; i < input_frame_id_els.length; i++) {
+    input_frame_ids.push(input_frame_id_els[i].value);
+  };
+  /* get unique frame ids: */
+  input_frame_ids = input_frame_ids.filter(get_unique);
+  /* list for storing all frame info: */
+  var frames_info = [];
+  /* search for data for each frame id: */
+  for (var i = 0; i < input_frame_ids.length; i++) {
+    /* current frame id: */
+    var selected_frame_id = input_frame_ids[i];
+    /* get frame info: */
+    frames_info.push(await get_frame_info(selected_frame_id));
+  };
+  /* search using retrieved frame info: */
+  search_frame_info(frames_info);
+
+
+  /* search using retrieved frame info: */
+  var search_results = search_frames_info(frames_info);
+  /* stpre the results: */
+  site_vars['search_results'] = search_results';
+  /* display the results: */
+
+
 };
 
 /* function to return a python script to download found files: */
@@ -614,8 +869,6 @@ async function get_script_curl() {
   document.body.removeChild(text_link);
 };
 
-
-
 /* add frame input element: */
 function add_frame_input() {
   /* frame inputs container: */
@@ -677,6 +930,8 @@ function remove_frame_input() {
   };
 };
 
+/** add listeners: **/
+
 /* add input listeners: */
 function add_listeners() {
   /* remove and add frame button elements: */
@@ -686,8 +941,6 @@ function add_listeners() {
   add_frame.addEventListener('click', add_frame_input);
   remove_frame.addEventListener('click', remove_frame_input);
 };
-
-/** add listeners: **/
 
 /* on page load: */
 window.addEventListener('load', function() {
