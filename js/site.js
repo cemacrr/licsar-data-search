@@ -36,23 +36,12 @@ var site_vars = {
   'search_results': [],
   /* search results file counts elements: */
   'span_results_count':  document.getElementById('span_results_count'),
-  'span_metadata_count':  document.getElementById('span_metadata_count'),
-  'span_epoch_count':  document.getElementById('span_epoch_count'),
-  'span_ifg_count':  document.getElementById('span_ifg_count'),
   /* search results elements: */
   'div_download_scripts': document.getElementById('download_scripts'),
   'div_download_scripts_display': null,
-  'div_search_results': document.getElementById('results'),
-  'div_search_results_display': null,
-  'div_metadata_results': document.getElementById('metadata_results'),
-  'div_metadata_search_results': document.getElementById('metadata_search_results'),
-  'div_metadata_results_display': null,
-  'div_epoch_results': document.getElementById('epoch_results'),
-  'div_epoch_search_results': document.getElementById('epoch_search_results'),
-  'div_epoch_results_display': null,
-  'div_ifg_results': document.getElementById('ifg_results'),
-  'div_ifg_search_results': document.getElementById('ifg_search_results'),
-  'div_ifg_results_display': null,
+  'div_results': document.getElementById('results'),
+  'div_results_display': null,
+  'div_search_results': document.getElementById('div_search_results'),
   /* urls for download script templates: */
   'python_script_template': 'scripts/get_licsar_files.py',
   'wget_script_template': 'scripts/wget_licsar_files.sh',
@@ -105,22 +94,13 @@ function setup_inputs() {
 /* function to set up the page: */
 function page_setup() {
   /* get display style for search results elements: */
-  site_vars['div_search_results_display'] =
-    site_vars['div_search_results'].style.display;
+  site_vars['div_results_display'] =
+    site_vars['div_results'].style.display;
   site_vars['div_download_scrips_display'] =
     site_vars['div_download_scripts'].style.display;
-  site_vars['div_metadata_results_display'] =
-    site_vars['div_metadata_results'].style.display;
-  site_vars['div_epoch_results_display'] =
-    site_vars['div_epoch_results'].style.display;
-  site_vars['div_ifg_results_display'] =
-    site_vars['div_ifg_results'].style.display;
   /* hide elements: */
-  site_vars['div_ifg_results'].style.display = 'none';
-  site_vars['div_epoch_results'].style.display = 'none';
-  site_vars['div_metadata_results'].style.display = 'none';
   site_vars['div_download_scripts'].style.display = 'none';
-  site_vars['div_search_results'].style.display = 'none';
+  site_vars['div_results'].style.display = 'none';
 };
 
 /* function to load frame information: */
@@ -164,299 +144,6 @@ function format_size(file_size) {
   return file_size_format;
 };
 
-/* function to search frame information: */
-function search_frame_info(frame_info) {
-  frame_info = frame_info[0];
-  /* frame id: */
-  var frame_id = frame_info['id'];
-  /* html element for search results count: */
-  var results_count_el = site_vars['span_results_count'];
-  /* html element for displaying search results: */
-  var search_results_el = site_vars['div_search_results'];
-  /* init inner html for information element: */
-  var inner_html = '';
-  /* init file size totals: */
-  var total_metadata_size = 0;
-  var total_epoch_size = 0;
-  var total_ifg_pair_size = 0;
-  /* init list for storing search results: */
-  var search_results = [];
-  /* remote paths to data for this frame: */
-  var remote_path = frame_info['path'];
-  var remote_metadata_path = remote_path + '/metadata';
-  var remote_epochs_path = remote_path + '/epochs';
-  var remote_ifgs_path = remote_path + '/interferograms';
-  /* get requested start and end dates: */
-  var start_date = site_vars['input_start_date'].value;
-  start_date = parseInt(start_date.replace(/-/g, ''));
-  var end_date = site_vars['input_end_date'].value;
-  end_date = parseInt(end_date.replace(/-/g, ''));
-  /** metadata: **/
-  /* get metadata checkbox value: */
-  var include_metadata = site_vars['input_include_metadata'].checked;
-  /* html elements: */
-  var metadata_el = site_vars['div_metadata_results'];
-  var metadata_count_el = site_vars['span_metadata_count'];
-  var metadata_results_el = site_vars['div_metadata_search_results'];
-  /* if metadata is requested: */
-  if (include_metadata == true) {
-    /* init inner html: */
-    inner_html = '';
-    /* get metadata: */
-    var frame_metadata = frame_info['metadata'];
-    /* loop through metadata files: */
-    var frame_metadata_files = frame_metadata['files'];
-    var frame_metadata_sizes = frame_metadata['sizes'];
-    for (var i = 0; i < frame_metadata_files.length; i++) {
-      /* remote url for this file: */
-      var metadata_file = frame_metadata_files[i];
-      var metadata_file_url = site_vars['remote_base_url'] + '/' +
-                              remote_metadata_path + '/' +
-                              metadata_file;
-      /* add file information to html: */
-      var metadata_size = frame_metadata_sizes[i];
-      total_metadata_size += metadata_size;
-      inner_html += '<div><a href="' + metadata_file_url + '">' +
-                    metadata_file + '</a> (' + format_size(metadata_size) + ')</div>';
-
-      /* store search results: */
-      search_results.push({
-        'name': metadata_file,
-        'path': frame_id + '/metadata',
-        'url': metadata_file_url,
-        'size': metadata_size
-      })
-    };
-    /* update file count: */
-    if (frame_metadata_files.length == 0) {
-      metadata_count_el.innerHTML = '(0 files)';
-    } else if (frame_metadata_files.length == 1) {
-      metadata_count_el.innerHTML = '(1 file, ' +
-                                    format_size(total_metadata_size) + ')';
-    } else {
-      metadata_count_el.innerHTML = '(' + frame_metadata_files.length +
-                                    ' files, ' +
-                                    format_size(total_metadata_size) + ')';
-    };
-    /* update the element html content: */
-    metadata_results_el.innerHTML = inner_html;
-    /* display the metadata element: */
-    metadata_el.style.display =
-      site_vars['div_metadata_results_display'];
-  } else {
-    /* empty the element html content: */
-    metadata_count_el.innerHTML = '';
-    metadata_results_el.innerHTML = '';
-    /* hide metadata element: */
-    metadata_el.style.display = 'none';
-  };
-  /** epoch: **/
-  /* html elements: */
-  var epoch_el = site_vars['div_epoch_results'];
-  var epoch_count_el = site_vars['span_epoch_count'];
-  var epoch_results_el = site_vars['div_epoch_search_results'];
-  /* check which per epoch files are requested: */
-  var include_epoch_files = [];
-  /* loop through epoch files input elements: */
-  for (var i = 0; i < site_vars['input_include_epoch_files'].length; i++) {
-    /* this element: */
-    var include_epoch_file = site_vars['input_include_epoch_files'][i];
-    /* if the box is checked: */
-    if (include_epoch_file.checked == true) {
-      /* add the file to list of those which should be included: */
-      include_epoch_files.push(include_epoch_file.value);
-    };
-  };
-  /* if any epoch files have been requested: */
-  if (include_epoch_files.length > 0) {
-    /* init inner html: */
-    inner_html = '';
-    /* init a file count: */
-    var frame_epoch_file_count = 0;
-    /* get epochs: */
-    var frame_epochs = frame_info['epochs'];
-    /* loop through epochs: */
-    for (var frame_epoch in frame_epochs) {
-      /* data for this epoch: */
-      var frame_epoch_info = frame_epochs[frame_epoch];
-      /* epoch date as integer: */
-      var frame_epoch_date = parseInt(frame_epoch_info['date']);
-      /* check date is within requested range: */
-      if ((frame_epoch_date < start_date) ||
-          (frame_epoch_date > end_date)) {
-        continue;
-      };
-      /* loop through files: */
-      var frame_epoch_files = frame_epoch_info['files'];
-      var frame_epoch_sizes = frame_epoch_info['sizes'];
-      for (var i = 0; i < frame_epoch_files.length; i++) {
-        /* skip if this file type is not requested: */
-        if (include_epoch_files.indexOf(frame_epoch_files[i]) < 0) {
-          continue;
-        };
-        /* remote url for this file: */
-        var frame_epoch_file = frame_epoch + '.' + frame_epoch_files[i];
-        var frame_epoch_file_url = site_vars['remote_base_url'] + '/' +
-                                   remote_epochs_path + '/' + frame_epoch + '/' +
-                                   frame_epoch_file;
-        /* add file information to html: */
-        var frame_epoch_size = frame_epoch_sizes[i];
-        total_epoch_size += frame_epoch_size;
-        inner_html += '<div><a href="' + frame_epoch_file_url + '">' +
-                      frame_epoch_file + '</a> (' + format_size(frame_epoch_size) + ')</div>';
-        /* store search results: */
-        search_results.push({
-          'name': frame_epoch_file,
-          'path': frame_id + '/epochs/' + frame_epoch,
-          'url': frame_epoch_file_url,
-          'size': frame_epoch_size
-        })
-        /* increment the count: */
-        frame_epoch_file_count += 1;
-      };
-    };
-    /* update file count: */
-    if (frame_epoch_file_count == 0) {
-      epoch_count_el.innerHTML = '(0 files)';
-    } else if (frame_epoch_file_count == 1) {
-      epoch_count_el.innerHTML = '(1 file, ' + format_size(total_epoch_size) +
-                                 ')';
-    } else {
-      epoch_count_el.innerHTML = '(' + frame_epoch_file_count +
-                                 ' files, ' + format_size(total_epoch_size) +
-                                 ')';
-    };
-    /* update the element html content: */
-    epoch_results_el.innerHTML = inner_html;
-    /* display the epoch element: */
-    epoch_el.style.display =
-      site_vars['div_epoch_results_display'];
-  } else {
-    /* empty the element html content: */
-    epoch_count_el.innerHTML = '';
-    epoch_results_el.innerHTML = '';
-    /* hide epoch element: */
-    epoch_el.style.display = 'none';
-  };
-  /** interferograms: **/
-  /* html elements: */
-  var ifg_el = site_vars['div_ifg_results'];
-  var ifg_count_el = site_vars['span_ifg_count'];
-  var ifg_results_el = site_vars['div_ifg_search_results'];
-  /* check which per interferogram files are requested: */
-  var include_ifg_files = [];
-  /* loop through ifg files input elements: */
-  for (var i = 0; i < site_vars['input_include_ifg_files'].length; i++) {
-    /* this element: */
-    var include_ifg_file = site_vars['input_include_ifg_files'][i];
-    /* if the box is checked: */
-    if (include_ifg_file.checked == true) {
-      /* add the file to list of those which should be included: */
-      include_ifg_files.push(include_ifg_file.value);
-    };
-  };
-  /* if any interferogram files have been requested: */
-  if (include_ifg_files.length > 0) {
-    /* init inner html: */
-    inner_html = '';
-    /* init a file count: */
-    var frame_ifg_file_count = 0;
-    /* get interferograms: */
-    var frame_ifgs = frame_info['ifgs'];
-    /* loop through interferograms: */
-    for (var ifg_pair in frame_ifgs) {
-      /* data for this pair: */
-      var ifg_pair_info = frame_ifgs[ifg_pair];
-      /* sart and end dates as integers for this pair: */
-      var ifg_pair_start = parseInt(ifg_pair_info['start']);
-      var ifg_pair_end = parseInt(ifg_pair_info['end']);
-      /* check date is within requested range: */
-      if ((ifg_pair_start < start_date) ||
-          (ifg_pair_end > end_date)) {
-        continue;
-      };
-      /* loop through files: */
-      var ifg_pair_files = ifg_pair_info['files'];
-      var ifg_pair_sizes = ifg_pair_info['sizes'];
-      for (var i = 0; i < ifg_pair_files.length; i++) {
-        /* skip if this file type is not requested: */
-        if (include_ifg_files.indexOf(ifg_pair_files[i]) < 0) {
-          continue;
-        };
-        /* remote url for this file: */
-        var ifg_pair_file = ifg_pair + '.' + ifg_pair_files[i];
-        var ifg_pair_file_url = site_vars['remote_base_url'] + '/' +
-                                remote_ifgs_path + '/' + ifg_pair + '/' +
-                                ifg_pair_file;
-        /* add file information to html: */
-        var ifg_pair_size = ifg_pair_sizes[i];
-        total_ifg_pair_size += ifg_pair_size;
-        inner_html += '<div><a href="' + ifg_pair_file_url + '">' +
-                      ifg_pair_file + '</a> (' + format_size(ifg_pair_size) + ')</div>';
-        /* store search results: */
-        search_results.push({
-          'name': ifg_pair_file,
-          'path': frame_id + '/interferograms/' + ifg_pair,
-          'url': ifg_pair_file_url,
-          'size': ifg_pair_size
-        })
-        /* increment the count: */
-        frame_ifg_file_count += 1;
-      };
-    };
-    /* update file count: */
-    if (frame_ifg_file_count == 0) {
-      ifg_count_el.innerHTML = '(0 files)';
-    } else if (frame_ifg_file_count == 1) {
-      ifg_count_el.innerHTML = '(1 file, ' + format_size(total_ifg_pair_size) +
-                               ')';
-    } else {
-      ifg_count_el.innerHTML = '(' + frame_ifg_file_count +
-                               ' files, ' + format_size(total_ifg_pair_size) +
-                               ')';
-    };
-    /* update the element html content: */
-    ifg_results_el.innerHTML = inner_html;
-    /* display the ifg element: */
-    ifg_el.style.display =
-      site_vars['div_ifg_results_display'];
-  } else {
-    /* empty the element html content: */
-    ifg_count_el.innerHTML = '';
-    ifg_results_el.innerHTML = '';
-    /* hide ifg element: */
-    ifg_el.style.display = 'none';
-  };
-  /* update search results counts: */
-  var total_file_size = total_metadata_size + total_epoch_size +
-                        total_ifg_pair_size;
-  if (search_results.length == 0) {
-    results_count_el.innerHTML = '(0 files)';
-  } else if (search_results.length == 1) {
-    results_count_el.innerHTML = '(1 file, ' + format_size(total_file_size) +
-                                 ')';
-  } else {
-    results_count_el.innerHTML = '(' + search_results.length + ' files, ' +
-                                 format_size(total_file_size) + ')';
-  };
-  /* if any search results: */
-  if (search_results.length > 0) {
-    /* display download scripts buttons: */
-    site_vars['div_download_scripts'].style.display =
-      site_vars['div_download_scrips_display'];
-  } else {
-    /* hide download scripts buttons: */
-    site_vars['div_download_scripts'].style.display = 'none';
-  };
-  /* display the search results element: */
-  search_results_el.style.display =
-    site_vars['div_search_results_display'];
-  /* scroll to search results: */
-  results_count_el.scrollIntoView();
-  /* store search results: */
-  site_vars['search_results'] = search_results;
-};
-
 /* function to get frame information from json file: */
 async function get_frame_info(frame_id) {
   /* directory which contains json for this frame: */
@@ -486,12 +173,6 @@ async function get_frame_info(frame_id) {
   return frame_info;
 };
 
-
-
-
-
-
-
 /* function to search frame information: */
 function search_frames_info(frames_info) {
   /* init search results: */
@@ -520,10 +201,10 @@ function search_frames_info(frames_info) {
       'ifgs': [],
       'metadata_count': 0,
       'metadata_size': 0,
-      'epoch_count': 0,
-      'epoch_size': 0,
-      'ifg_count': 0,
-      'ifg_size': 0,
+      'epochs_count': 0,
+      'epochs_size': 0,
+      'ifgs_count': 0,
+      'ifgs_size': 0,
       'total_count': 0,
       'total_size': 0
     };
@@ -615,8 +296,8 @@ function search_frames_info(frames_info) {
             'size': frame_epoch_size
           })
           /* update counts and sizes: */
-          frame_results['epoch_count'] += 1;
-          frame_results['epoch_size'] += frame_epoch_size;
+          frame_results['epochs_count'] += 1;
+          frame_results['epochs_size'] += frame_epoch_size;
           frame_results['total_count'] += 1;
           frame_results['total_size'] += frame_epoch_size;
           results['total_count'] += 1;
@@ -677,8 +358,8 @@ function search_frames_info(frames_info) {
             'size': ifg_pair_size
           })
           /* update counts and sizes: */
-          frame_results['ifg_count'] += 1;
-          frame_results['ifg_size'] += ifg_pair_size;
+          frame_results['ifgs_count'] += 1;
+          frame_results['ifgs_size'] += ifg_pair_size;
           frame_results['total_count'] += 1;
           frame_results['total_size'] += ifg_pair_size;
           results['total_count'] += 1;
@@ -693,28 +374,158 @@ function search_frames_info(frames_info) {
   return results;
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* function to display search results: */
+function display_search_results() {
+  /* get the results: */
+  var search_results = site_vars['search_results'];
+  /* main html element for displaying total search results: */
+  var results_el = site_vars['div_results'];
+  /* html element for search results count: */
+  var results_count_el = site_vars['span_results_count'];
+  /* update search results totals: */
+  var total_file_count = search_results['total_count'];
+  var total_file_size = search_results['total_size'];
+  /* update html for total count and size: */
+  if (total_file_count == 0) {
+    results_count_el.innerHTML = '(0 files)';
+  } else if (total_file_count == 1) {
+    results_count_el.innerHTML = '(1 file, ' + format_size(total_file_size) +
+                                 ')';
+  } else {
+    results_count_el.innerHTML = '(' + total_file_count + ' files, ' +
+                                 format_size(total_file_size) + ')';
+  };
+  /* div for search result content: */
+  var search_results_el = site_vars['div_search_results'];
+  /* wipe out html content of search results: */
+  search_results_el.innerHTML = '';
+  /* per frame search results: */
+  var frames_results = search_results['frames'];
+  /* loop through the frames i nthe results: */
+  for (var i = 0; i < frames_results.length; i++) {
+    /* results for this frame: */
+    var frame_results = frames_results[i];
+    /* id for this frame: */
+    var frame_id = frame_results['id'];
+    /* file count and size for this frame: */
+    var frame_file_count = frame_results['total_count'];
+    var frame_file_size = frame_results['total_size'];
+    /* if no results for this frame, move one: */
+    if (frame_file_count == 0) {
+      continue;
+    };
+    /* create a div for the frame results: */
+    var frame_results_el = document.createElement('div');
+    frame_results_el.id = 'frame_results_' + frame_id;
+    frame_results.classList = 'frame_results';
+    /** frame header: **/
+    /* if more than one frame has results, display per frame header: */
+    if (frame_file_count != total_file_count) {
+      /* create a div for frame result header: */
+      var frame_header_el = document.createElement('div');
+      frame_header_el.id = 'frame_results_header_' + frame_id;
+      frame_header_el.classList = 'heading';
+      frame_results_el.appendChild(frame_header_el)
+      /* add content to header element: */
+      var frame_header_label_el = document.createElement('label');
+      frame_header_label_el.innerHTML = frame_id + ' ';
+      frame_header_el.appendChild(frame_header_label_el);
+      /* add results count to frame header element: */
+      var frame_header_count_el = document.createElement('span');
+      frame_header_count_el.classList = 'span_results_count';
+      frame_header_el.appendChild(frame_header_count_el);
+      /* add count html content: */
+      if (frame_file_count == 0) {
+        frame_header_count_el.innerHTML = '(0 files)';
+      } else if (frame_file_count == 1) {
+        frame_header_count_el.innerHTML =
+          '(1 file, ' + format_size(frame_file_size) + ')';
+      } else {
+        frame_header_count_el.innerHTML =
+          '(' + frame_file_count + ' files, ' +
+          format_size(frame_file_size) + ')';
+      };
+    };
+    /* results categories and labels: */
+    var results_types = ['metadata', 'epochs', 'ifgs'];
+    var results_labels = [
+      'Metadata', 'Per epoch files', 'Interferograms'
+    ];
+    /* loop through results types: */
+    for (var j = 0; j < results_types.length; j++) {
+      /* result type and label: */
+      var result_type = results_types[j];
+      var result_label = results_labels[j];
+      /* file count and size for this frame: */
+      var type_count = frame_results[result_type + '_count'];
+      var type_size = frame_results[result_type + '_size'];
+      /* if any results: */
+      if (type_count > 0) {
+        /* create a div for the type results: */
+        var type_el = document.createElement('div');
+        type_el.id = result_type + '_results_' + frame_id;
+        type_el.classList = 'frame_results';
+        frame_results_el.appendChild(type_el);
+        /* create a div for type header: */
+        var type_hdr_el = document.createElement('div');
+        type_hdr_el.id = 'label_' + result_type + '_results_' + frame_id;
+        type_hdr_el.classList = 'label';
+        type_el.appendChild(type_hdr_el);
+        /* add header content: */
+        var type_label_el = document.createElement('label');
+        type_label_el.innerHTML = result_label + ' '
+        type_hdr_el.appendChild(type_label_el);
+        var type_count_el = document.createElement('span');
+        type_count_el.classList = 'span_results_count';
+        /* add count html content: */
+        if (type_count == 1) {
+          type_count_el.innerHTML =
+            '(1 file, ' + format_size(type_size) + ')';
+        } else {
+          type_count_el.innerHTML =
+            '(' + type_count + ' files, ' + format_size(type_size) + ')';
+        };
+        type_hdr_el.appendChild(type_count_el);
+        /* add element for type results: */
+        var type_results_el = document.createElement('div');
+        type_results_el.classList = 'frame_search_results';
+        type_el.appendChild(type_results_el);
+        /* init inner html for type search results; */
+        var type_results_html = '';
+        /* get type data: */
+        var type_data = frame_results[result_type];
+        /* loop through files: */
+        for (var k = 0; k < type_data.length; k++) {
+          /* data for this file: */
+          var data_file = type_data[k];
+          /* add file information to html: */
+          type_results_html +=
+            '<div><a href="' + data_file['url'] + '">' + data_file['name'] +
+            '</a> (' + format_size(data_file['size']) + ')</div>';
+        };
+        /* update results html: */
+        type_results_el.innerHTML = type_results_html;
+      };
+    /* end loop through results types: */
+    };
+    /* add html content for this frame to search results: */
+    search_results_el.appendChild(frame_results_el);
+  };
+  /* if any search results: */
+  if (total_file_count > 0) {
+    /* display download scripts buttons: */
+    site_vars['div_download_scripts'].style.display =
+      site_vars['div_download_scrips_display'];
+  } else {
+    /* hide download scripts buttons: */
+    site_vars['div_download_scripts'].style.display = 'none';
+  };
+  /* display the results element: */
+  results_el.style.display =
+    site_vars['div_results_display'];
+  /* scroll to search results: */
+  results_count_el.scrollIntoView();
+};
 
 /* function to filter unique values from array: */
 function get_unique(value, index, array) {
@@ -742,16 +553,11 @@ async function search_files() {
     frames_info.push(await get_frame_info(selected_frame_id));
   };
   /* search using retrieved frame info: */
-  search_frame_info(frames_info);
-
-
-  /* search using retrieved frame info: */
   var search_results = search_frames_info(frames_info);
   /* stpre the results: */
-  site_vars['search_results'] = search_results';
+  site_vars['search_results'] = search_results;
   /* display the results: */
-
-
+  display_search_results();
 };
 
 /* function to return a python script to download found files: */
