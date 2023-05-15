@@ -44,7 +44,7 @@ IFG_FILE_MATCH = [
 ]
 
 # Output path for storing JSON data:
-OUT_PATH = './metadata'
+OUT_PATH = '../metadata'
 
 # ---
 
