@@ -7,7 +7,7 @@ var site_vars = {
   /* remote base url for licsar products: */
   'remote_base_url': 'https://gws-access.jasmin.ac.uk/public/nceo_geohazards/LiCSAR_products',
   /* path to metadata: */
-  'metadata_path': 'metadata',
+  'metadata_path': 'LiCSAR_data_search_metadata',
   /* path to main frames file: */
   'frames_path': 'frames.json',
   /* variable for storing list of frames: */
@@ -43,9 +43,9 @@ var site_vars = {
   'div_results_display': null,
   'div_search_results': document.getElementById('div_search_results'),
   /* urls for download script templates: */
-  'python_script_template': 'scripts/get_licsar_files.py',
-  'wget_script_template': 'scripts/wget_licsar_files.sh',
-  'curl_script_template': 'scripts/curl_licsar_files.sh'
+  'python_script_template': 'LiCSAR_data_search_scripts/get_licsar_files.py',
+  'wget_script_template': 'LiCSAR_data_search_scripts/wget_licsar_files.sh',
+  'curl_script_template': 'LiCSAR_data_search_scripts/curl_licsar_files.sh'
 };
 
 /** functions: **/

@@ -8,7 +8,7 @@ METADATA_DIR="${WORK_DIR}/metadata"
 REMOTE_USER='cometnerc'
 REMOTE_HOST='cometnerc.ssh.wpengine.net'
 # remote path for metadata:
-REMOTE_PATH='./sites/cometnerc/licsar/metadata'
+REMOTE_PATH='./sites/cometnerc/licsar/LiCSAR_data_search_metadata'
 # ssh key to use for transfer:
 SSH_KEY="${WORK_DIR}/ssh_key/rr-cometnerc"
 
