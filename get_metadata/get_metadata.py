@@ -402,6 +402,8 @@ def save_metadata(out_path, frames_metadata):
     frame_ids = [
         i['id'] for i in frames_metadata
     ]
+    # Sort the ids:
+    frame_ids.sort()
     # Path to output file storing frame ids:
     frame_ids_path = os.sep.join([out_path, 'frames.json'])
     # Open the output file for writing:
