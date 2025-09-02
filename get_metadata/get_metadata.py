@@ -246,7 +246,8 @@ def get_metadata(metadata_path, file_match):
     # Init dict for storing metadata information:
     metadata = {
         'files': [],
-        'sizes': []
+        'sizes': [],
+        'links': []
     }
     # Use os scandir to search through content:
     for item in os.scandir(metadata_path):
@@ -261,6 +262,11 @@ def get_metadata(metadata_path, file_match):
                 metadata['files'].append(item.name)
                 # Store file size information:
                 metadata['sizes'].append(os.stat(item.path).st_size)
+                # Store link information:
+                if os.path.islink(item.path):
+                    metadata['links'].append(1)
+                else:
+                    metadata['links'].append(0)
     # Return the metadata information:
     return metadata
 
@@ -295,7 +301,8 @@ def get_ifgs(ifgs_path, file_match):
             'start': int(start_date),
             'end': int(end_date),
             'files': [],
-            'sizes': []
+            'sizes': [],
+            'links': []
         }
         # Use os scandir to search through content:
         for item in os.scandir(ifg_path):
@@ -310,6 +317,11 @@ def get_ifgs(ifgs_path, file_match):
                     ifg['files'].append(file_pattern)
                     # Store file size information:
                     ifg['sizes'].append(os.stat(item.path).st_size)
+                    # Store link information:
+                    if os.path.islink(item.path):
+                        ifg['links'].append(1)
+                    else:
+                        ifg['links'].append(0)
             # Store the information for this ifg:
             ifgs[ifg_dir] = ifg
     # Return the ifgs information:
