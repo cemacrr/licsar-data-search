@@ -219,7 +219,8 @@ def get_epochs(epochs_path, file_match):
         epoch = {
             'date': int(epoch_dir),
             'files': [],
-            'sizes': []
+            'sizes': [],
+            'links': []
         }
         # Use os scandir to search through content:
         for item in os.scandir(epoch_path):
@@ -234,6 +235,11 @@ def get_epochs(epochs_path, file_match):
                     epoch['files'].append(file_pattern)
                     # Store file size information:
                     epoch['sizes'].append(os.stat(item.path).st_size)
+                    # Store link information:
+                    if os.path.islink(item.path):
+                        epoch['links'].append(1)
+                    else:
+                        epoch['links'].append(0)
             # Store the information for this epoch:
             epochs[epoch_dir] = epoch
     # Return the epochs information:

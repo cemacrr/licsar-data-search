@@ -6,6 +6,7 @@
 var site_vars = {
   /* remote base url for licsar products: */
   'remote_base_url': 'https://gws-access.jasmin.ac.uk/public/nceo_geohazards/LiCSAR_products',
+  'remote_links_base_url': 'https://data.ceda.ac.uk/neodc/comet/data/licsar_products',
   /* path to metadata: */
   'metadata_path': 'LiCSAR_data_search_metadata',
   /* path to main frames file: */
@@ -215,6 +216,7 @@ function search_frames_info(frames_info) {
     var remote_metadata_path = remote_path + '/metadata';
     var remote_epochs_path = remote_path + '/epochs';
     var remote_ifgs_path = remote_path + '/interferograms';
+    var remote_links_ifgs_path = remote_path;
     /** metadata: **/
     /* if metadata is requested: */
     if (include_metadata == true) {
@@ -223,12 +225,19 @@ function search_frames_info(frames_info) {
       /* loop through metadata files: */
       var frame_metadata_files = frame_metadata['files'];
       var frame_metadata_sizes = frame_metadata['sizes'];
+      var frame_metadata_links = frame_metadata['links'];
       for (var j = 0; j < frame_metadata_files.length; j++) {
         /* remote url for this file: */
         var metadata_file = frame_metadata_files[j];
-        var metadata_file_url = site_vars['remote_base_url'] + '/' +
-                                remote_metadata_path + '/' +
-                                metadata_file;
+        if (frame_metadata_links[j] == 1) {
+          var metadata_file_url = site_vars['remote_links_base_url'] + '/' +
+                                  remote_metadata_path + '/' +
+                                  metadata_file;
+        } else {
+          var metadata_file_url = site_vars['remote_base_url'] + '/' +
+                                  remote_metadata_path + '/' +
+                                  metadata_file;
+        };
         /* size of this file: */
         var metadata_size = frame_metadata_sizes[j];
         /* store search results: */
@@ -278,6 +287,7 @@ function search_frames_info(frames_info) {
         /* loop through files: */
         var frame_epoch_files = frame_epoch_info['files'];
         var frame_epoch_sizes = frame_epoch_info['sizes'];
+        var frame_epoch_links = frame_epoch_info['links'];
         for (var j = 0; j < frame_epoch_files.length; j++) {
           /* skip if this file type is not requested: */
           if (include_epoch_files.indexOf(frame_epoch_files[j]) < 0) {
@@ -285,9 +295,15 @@ function search_frames_info(frames_info) {
           };
           /* remote url for this file: */
           var frame_epoch_file = frame_epoch + '.' + frame_epoch_files[j];
-          var frame_epoch_file_url = site_vars['remote_base_url'] + '/' +
-                                     remote_epochs_path + '/' + frame_epoch + '/' +
-                                     frame_epoch_file;
+          if (frame_epoch_links[j] == 1) {
+            var frame_epoch_file_url = site_vars['remote_links_base_url'] + '/' +
+                                       remote_epochs_path + '/' + frame_epoch + '/' +
+                                       frame_epoch_file;
+          } else {
+            var frame_epoch_file_url = site_vars['remote_base_url'] + '/' +
+                                       remote_epochs_path + '/' + frame_epoch + '/' +
+                                       frame_epoch_file;
+          };
           /* size of this file: */
           var frame_epoch_size = frame_epoch_sizes[j];
           /* store search results: */
@@ -339,6 +355,7 @@ function search_frames_info(frames_info) {
         /* loop through files: */
         var ifg_pair_files = ifg_pair_info['files'];
         var ifg_pair_sizes = ifg_pair_info['sizes'];
+        var ifg_pair_links = ifg_pair_info['links'];
         for (var j = 0; j < ifg_pair_files.length; j++) {
           /* skip if this file type is not requested: */
           if (include_ifg_files.indexOf(ifg_pair_files[j]) < 0) {
@@ -346,9 +363,15 @@ function search_frames_info(frames_info) {
           };
           /* remote url for this file: */
           var ifg_pair_file = ifg_pair + '.' + ifg_pair_files[j];
-          var ifg_pair_file_url = site_vars['remote_base_url'] + '/' +
-                                  remote_ifgs_path + '/' + ifg_pair + '/' +
-                                  ifg_pair_file;
+          if (ifg_pair_links[j] == 1) {
+            var ifg_pair_file_url = site_vars['remote_links_base_url'] + '/' +
+                                    remote_links_ifgs_path + '/' + ifg_pair +
+                                    '/' + ifg_pair_file;
+          } else {
+            var ifg_pair_file_url = site_vars['remote_base_url'] + '/' +
+                                    remote_ifgs_path + '/' + ifg_pair + '/' +
+                                    ifg_pair_file;
+          };
           /* size of this file: */
           var ifg_pair_size = ifg_pair_sizes[j];
 
